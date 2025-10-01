@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SnapCut Shop</title>
+<style>
+body{
+  margin:0; padding:20px; background:#000; color:#fff; font-family:sans-serif; text-align:center;
+}
+
+/* Glowing SS Circle */
+#logoCircle{
+  width:120px;
+  height:120px;
+  background:#000;
+  border-radius:50%;
+  margin:20px auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:2.5rem;
+  font-weight:bold;
+  color:#fff;
+  text-shadow:0 0 15px #fff, 0 0 30px #fff, 0 0 45px #fff;
+  box-shadow:0 0 20px #fff, 0 0 40px #fff, 0 0 60px #fff;
+  transition:0.3s;
+}
+#logoCircle:hover{
+  box-shadow:0 0 30px #fff, 0 0 60px #fff, 0 0 90px #fff;
+  text-shadow:0 0 20px #fff, 0 0 40px #fff, 0 0 60px #fff;
+}
+
+h1{
+  font-size:3rem; text-shadow:0 0 15px #fff;
+  margin-bottom:25px;
+}
+.buttons{margin:25px 0; display:flex; justify-content:center; gap:15px; flex-wrap:wrap;}
+.btn{padding:12px 20px; border:2px solid #fff; border-radius:10px; background:transparent; color:#fff; cursor:pointer; transition:0.3s; font-weight:700;}
+.btn:hover{background:#fff; color:#000; box-shadow:0 0 10px #fff;}
+.form-container{display:none; margin-top:30px;}
+form{max-width:400px; margin:auto; text-align:left; background:rgba(255,255,255,0.05); padding:20px; border-radius:10px;}
+label{display:block;margin:10px 0 5px;color:#ccc;}
+input, textarea{width:100%; padding:8px; margin-bottom:12px; border:none; border-radius:5px; background:#111; color:#fff;}
+.submit-btn{width:100%; padding:10px; font-weight:bold; background:#fff; color:#000; cursor:pointer; border-radius:5px;}
+.submit-btn:hover{background:#000; color:#fff; box-shadow:0 0 10px #fff;}
+</style>
+</head>
+<body>
+
+<!-- Glowing Logo Circle -->
+<div id="logoCircle">SS</div>
+
+<h1>SnapCut Shop</h1>
+
+<div class="buttons">
+  <button class="btn" id="btnGFX">GFX</button>
+  <button class="btn" id="btnVFX">VFX</button>
+  <button class="btn" id="btnVideo">Video Editing</button>
+</div>
+
+<div class="form-container" id="form-container">
+<form id="orderForm">
+  <h2 id="formTitle"></h2>
+  <label for="type">1. Type of Editing</label>
+  <input type="text" id="type" required>
+  <label for="related">2. Related to</label>
+  <input type="text" id="related" required>
+  <label for="extra">3. Extra</label>
+  <input type="text" id="extra">
+  <label for="desc">4. Description</label>
+  <textarea id="desc" rows="4" required></textarea>
+  <label for="contact">5. Contact Info (Email, Phone, Discord) <span style="color:red;">*</span></label>
+  <input type="text" id="contact" placeholder="Enter your contact details" required>
+  <button type="submit" class="submit-btn" id="submitBtn">Submit</button>
+</form>
+</div>
+
+<script>
+const WEBHOOK_URL = "https://discord.com/api/webhooks/1422848764087107699/nIAtYGnSFnXDVM1vW0xCfdWhpagu5bkg4Yi0ReWvkErocUXXi8O_tRmjSekxfal8Ti8_";
+
+const form = document.getElementById('orderForm');
+const submitBtn = document.getElementById('submitBtn');
+const titleEl = document.getElementById('formTitle');
+const formContainer = document.getElementById('form-container');
+let selectedService = "";
+
+// Button click listeners
+document.getElementById('btnGFX').addEventListener('click', ()=>openForm('GFX'));
+document.getElementById('btnVFX').addEventListener('click', ()=>openForm('VFX'));
+document.getElementById('btnVideo').addEventListener('click', ()=>openForm('Video Editing'));
+
+function openForm(service){
+  selectedService = service;
+  titleEl.textContent = service + " Order Form";
+  formContainer.style.display = 'block';
+  form.reset();
+  submitBtn.textContent = "Submit";
+  setTimeout(()=>{form.scrollIntoView({behavior:"smooth"});},50);
+}
+
+form.addEventListener('submit', function(e){
+  e.preventDefault();
+
+  const type = document.getElementById('type').value.trim();
+  const related = document.getElementById('related').value.trim();
+  const extra = document.getElementById('extra').value.trim() || "None";
+  const desc = document.getElementById('desc').value.trim();
+  const contact = document.getElementById('contact').value.trim();
+
+  if(contact === ""){
+    alert("Please enter your contact info!");
+    return;
+  }
+
+  const payload = {
+    content: `New SnapCut Order!`,
+    embeds:[{
+      title: selectedService + " Order",
+      fields:[
+        {name:"Type of Editing", value:type},
+        {name:"Related to", value:related},
+        {name:"Extra", value:extra},
+        {name:"Description", value:desc},
+        {name:"Contact Info", value:contact}
+      ],
+      color:5814783
+    }]
+  };
+
+  fetch(WEBHOOK_URL,{
+    method:"POST",
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  })
+  .then(res=>{
+    if(res.ok){
+      submitBtn.textContent = "Done ✅"; // shows Done immediately
+      form.reset(); // clear fields immediately
+    } else {
+      alert("Error sending order!");
+    }
+  })
+  .catch(err=>alert("Error: "+err));
+});
+</script>
+
+</body>
+</html>
